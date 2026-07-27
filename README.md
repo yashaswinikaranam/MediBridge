@@ -4,29 +4,46 @@ MediBridge is a full-stack **MERN** (MongoDB, Express.js, React.js, Node.js) web
 
 ---
 
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-Express-green?logo=node.js)
+![MongoDB](https://img.shields.io/badge/MongoDB-Database-brightgreen?logo=mongodb)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+## 📸 Project Preview
+
+### 🏠 Home Page
+
+![Home](assets/screenshots/home.png)
+
+### 👨‍💼 Admin Dashboard
+
+![Admin](assets/screenshots/admin-dashboard.png)
+
 ## 🚀 Features
 
 ### 👤 Patient
-- Register and Login securely
-- Browse available doctors
-- Book appointments
-- View appointment history
-- Cancel appointments
-- Manage profile
+- ✅ Register & Login
+- ✅ Browse Doctors
+- ✅ Book Appointments
+- ✅ View Appointment History
+- ✅ Cancel Appointments
+- ✅ Manage Profile
 
 ### 👨‍⚕️ Doctor
-- Secure authentication
-- Doctor dashboard
-- View scheduled appointments
-- Manage availability
-- Update profile information
+
+- ✅ Secure Authentication
+- ✅ Doctor Dashboard
+- ✅ View Scheduled Appointments
+- ✅ Manage Availability
+- ✅ Update Profile Information
 
 ### 👨‍💼 Admin
-- Admin dashboard
-- Add new doctors
-- Manage doctor profiles
-- View all appointments
-- Monitor users
+
+- ✅ Admin Dashboard
+- ✅ Add Doctors
+- ✅ Manage Doctor Profiles
+- ✅ View All Appointments
+- ✅ Monitor Users
 
 ---
 
@@ -69,12 +86,26 @@ MediBridge/
 
 ---
 
+## 🏗 Architecture
+
+```text
+React (Frontend)
+        │
+ REST API (Axios)
+        │
+        ▼
+Node.js + Express
+        │
+        ▼
+MongoDB Atlas
+```
+
 ## ⚙️ Installation
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/MediBridge.git
+git clone https://github.com/yashaswinikaranam/MediBridge.git
 cd MediBridge
 ```
 
@@ -134,15 +165,23 @@ CLOUDINARY_SECRET_KEY=your_cloudinary_secret
 
 ## 📸 Screenshots
 
-> *(Add screenshots after deploying the project.)*
 
-| Home | Patient Dashboard |
-|------|-------------------|
-| Add Screenshot | Add Screenshot |
+### Patient Login
 
-| Doctor Dashboard | Admin Dashboard |
-|-----------------|-----------------|
-| Add Screenshot | Add Screenshot |
+![Login](assets/screenshots/login.png)
+
+### Appointment Booking
+
+![Booking](assets/screenshots/booking.png)
+
+### Patient Dashboard
+
+![Patient Dashboard](assets/screenshots/patient-dashboard.png)
+
+### Doctor Dashboard
+
+![Doctor Dashboard](assets/screenshots/doctor-dashboard.png)
+
 
 ---
 
@@ -163,10 +202,15 @@ CLOUDINARY_SECRET_KEY=your_cloudinary_secret
 
 B.Tech Computer Science Engineering
 
-GitHub: https://github.com/yashaswinikaranam
+- GitHub: https://github.com/yashaswinikaranam
+- LinkedIn: https://www.linkedin.com/in/yashaswini-karanam/
 
 ---
 
-## ⭐ Support
+## 📄 License
 
-If you found this project helpful, consider giving it a ⭐ on GitHub!
+This project is licensed under the MIT License.
+
+## 📌 Status
+
+🚧 This project is actively being improved with additional features and UI enhancements.
