@@ -57,6 +57,22 @@ const DoctorContextProvider = (props) => {
         }
     }
 
+    const createPrescription = async(prescriptionData) => {
+        try {
+            const {data} = await axios.post(backendUrl+'/api/doctor/create-prescription',prescriptionData,{headers:{dToken}})
+            if(data.success) {
+                toast.success(data.message)
+                return true
+            } else {
+                toast.error(data.message)
+                return false
+            }
+        } catch(error) {
+            toast.error(error.message)
+            return false
+        }
+    }
+
     const getDashData = async()=> {
         try {
             const {data} = await axios.get(backendUrl+'/api/doctor/dashboard',{headers:{dToken}})
@@ -91,7 +107,8 @@ const DoctorContextProvider = (props) => {
         completeAppointment,
         cancelAppointment,
         dashData,setDashData,getDashData,
-        profileData,setProfileData,getProfileData
+        profileData,setProfileData,getProfileData,
+        createPrescription
     }
     return (
         <DoctorContext.Provider value={value}>

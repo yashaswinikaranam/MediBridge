@@ -2,6 +2,7 @@ import doctorModel from "../models/doctorModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import appointmentModel from "../models/appointmentModel.js";
+import prescriptionModel from "../models/prescriptionModel.js";
 
 const changeAvailability = async(req,res) => {
     try {
@@ -80,6 +81,54 @@ const appointmentComplete = async(req,res)=> {
         console.log(error)
         res.json({success:false,message:error.message})
     }
+}
+
+const createPrescription = async(req,res) => {
+    try {
+    const docId = req.docId
+    const {appointmentId, diagnosis, medicines, additionalNotes} = req.body
+    const appointmentData = await appointmentModel.findById(appointmentId)
+
+    if(!appointmentData) {
+        return res.json({
+            success:false,
+            message:'Appointment not found'
+        })
+    }
+
+    if(appointmentId!=docId) {
+        return res.json({success:false,message:'Not authorized!'})
+    }
+
+    if(!appointmentData.isCompleted) {
+        return res.json({success:false,message:'Appointment is not completed'})
+    }
+
+    const existingPres = await prescriptionModel.findOne({appointmentId})
+    if(existingPres) {
+        return res.json({success:false,message:'Prescription already exists for this appointment'})
+    }
+
+    const prescriptionData = {
+        appointmentId,
+        userId:appointmentData.userId,
+        docId:appointmentData.docId,
+        diagnosis,
+        medicines,
+        additionalNotes
+    }
+
+    const prescription = new prescriptionModel(prescriptionData)
+    await prescription.save()
+
+    res.json({success:true,message:'Prescription created successfully'})
+}   catch(error) {
+    res.json({success:false,message:error.message})
+}
+}
+
+const getPrescriptions = async(req,res) => {
+
 }
 
 //API to cancel appointment completed for doctor
@@ -163,4 +212,4 @@ const updateProfile = async(req,res)=> {
     }
 }
 
-export {changeAvailability, doctorList, loginDoctor, appointmentsDoctor, appointmentComplete, appointmentCancel, doctorDashboard, doctorProfile, updateProfile}
+export {createPrescription,getPrescriptions,changeAvailability, doctorList, loginDoctor, appointmentsDoctor, appointmentComplete, appointmentCancel, doctorDashboard, doctorProfile, updateProfile}
