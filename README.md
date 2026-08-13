@@ -9,6 +9,10 @@ MediBridge is a full-stack **MERN** (MongoDB, Express.js, React.js, Node.js) web
 ![MongoDB](https://img.shields.io/badge/MongoDB-Database-brightgreen?logo=mongodb)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
+## 🚀 Live Demo
+
+[Click here to view the project](https://medibridge-yashaswini.vercel.app)
+
 ## 📸 Project Preview
 
 ### 🏠 Home Page
