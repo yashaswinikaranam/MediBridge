@@ -58,7 +58,19 @@ const appointmentsDoctor = async(req,res)=> {
         const docId = req.docId
         const appointments=await appointmentModel.find({docId})
 
-        res.json({success:true,appointments})
+        const appointmentsWithPrescription = await Promise.all(
+            appointments.map(async (appointment) => {
+                const prescription = await prescriptionModel.findOne({
+                    appointmentId: appointment._id.toString()
+                })
+                return {
+                    ...appointment.toObject(),
+                    hasPrescription:!!prescription
+                }
+            })
+        )
+
+        res.json({success:true,appointments:appointmentsWithPrescription})
     } catch(error) {
         console.log(error)
         res.json({success:false,message:error.message})
@@ -96,7 +108,7 @@ const createPrescription = async(req,res) => {
         })
     }
 
-    if(appointmentId!=docId) {
+    if(appointmentData.docId!=docId) {
         return res.json({success:false,message:'Not authorized!'})
     }
 
@@ -128,7 +140,25 @@ const createPrescription = async(req,res) => {
 }
 
 const getPrescriptions = async(req,res) => {
+    try {
+        const docId = req.docId
+        const {appointmentId} = req.params 
+        const appointmentData = await appointmentModel.findById(appointmentId)
 
+        if(!appointmentData) {
+            return res.json({success:false,message:'Appointment not found'})
+        }
+        if(appointmentData.docId!=docId) {
+            return res.json({success:false,message:'Not authorized!'})
+        }
+        const prescription = await prescriptionModel.findOne({appointmentId})
+        if(!prescription) {
+            return res.json({success:false,message:'Prescription not found'})
+        }
+        res.json({success:true,prescription})
+    } catch(error) {
+        res.json({success:false,message:error.message})
+    }
 }
 
 //API to cancel appointment completed for doctor

@@ -1,14 +1,18 @@
 import React, { useContext, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { DoctorContext } from '../../context/DoctorContext'
+import { useEffect } from 'react'
 
 export const DoctorPrescription = () => {
 
     const { appointmentId } = useParams()
-    const {createPrescription} = useContext(DoctorContext)
+    const {createPrescription, getPrescriptions} = useContext(DoctorContext)
 
     const [diagnosis, setDiagnosis] = useState('')
     const [additionalNotes, setAdditionalNotes] = useState('')
+
+    const [existingPrescription, setExistingPrescription] = useState(null)
+    const [loading,setLoading] = useState(true)
 
     const [medicines, setMedicines] = useState([
         {
@@ -27,9 +31,108 @@ export const DoctorPrescription = () => {
             medicines,
             additionalNotes
         }
-        await createPrescription(prescriptionData)
+        const success = await createPrescription(prescriptionData)
+        if(success) {
+            const prescription = await getPrescriptions(appointmentId)
+            setExistingPrescription(prescription)
+        }
     }
 
+    useEffect(()=> {
+        const fetchPrescription = async() => {
+            const prescription = await getPrescriptions(appointmentId)
+            setExistingPrescription(prescription)
+            setLoading(false)
+        }
+        fetchPrescription()
+    }, [appointmentId])
+
+    if (loading) {
+        return <div className='m-5'>Loading....</div>
+    }
+    if(existingPrescription) {
+        return (
+            <div className='w-full max-w-5xl m-5'>
+
+                <p className='mb-5 text-lg font-medium'>
+                    Prescription
+                </p>
+
+                <div className='bg-white border rounded p-5'>
+
+                    <p className='font-medium mb-2'>
+                        Diagnosis
+                    </p>
+
+                    <p className='mb-5'>
+                        {existingPrescription.diagnosis}
+                    </p>
+
+
+                    <p className='font-medium mb-3'>
+                        Medicines
+                    </p>
+
+                    {existingPrescription.medicines.map((medicine, index) => (
+
+                        <div
+                            key={index}
+                            className='border rounded p-4 mb-3'
+                        >
+
+                            <p>
+                                <strong>Medicine:</strong>{' '}
+                                {medicine.medicineName}
+                            </p>
+
+                            <p>
+                                <strong>Dosage:</strong>{' '}
+                                {medicine.dosage}
+                            </p>
+
+                            <p>
+                                <strong>Frequency:</strong>{' '}
+                                {medicine.frequency}
+                            </p>
+
+                            <p>
+                                <strong>Duration:</strong>{' '}
+                                {medicine.duration}
+                            </p>
+
+                            {medicine.instructions && (
+                                <p>
+                                    <strong>Instructions:</strong>{' '}
+                                    {medicine.instructions}
+                                </p>
+                            )}
+
+                        </div>
+
+                    ))}
+
+
+                    {existingPrescription.additionalNotes && (
+
+                        <div className='mt-5'>
+
+                            <p className='font-medium'>
+                                Additional Notes
+                            </p>
+
+                            <p>
+                                {existingPrescription.additionalNotes}
+                            </p>
+
+                        </div>
+
+                    )}
+
+                </div>
+
+            </div>
+        )
+    }
     return (
         <div className='w-full max-w-5xl m-5'>
 

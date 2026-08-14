@@ -6,6 +6,7 @@ import {v2 as cloudinary} from 'cloudinary'
 import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
 import razorpay from 'razorpay'
+import prescriptionModel from '../models/prescriptionModel.js'
 
 
 //API to register user
@@ -173,7 +174,19 @@ const listAppointments = async(req,res)=> {
         const userId = req.userId;
         const appointments = await appointmentModel.find({userId})
 
-        res.json({success:true,appointments})
+        const appointmentsWithPrescription = await Promise.all(
+            appointments.map(async (appointment)=> {
+                const prescription = await prescriptionModel.findOne({
+                    appointmentId:appointment._id.toString()
+                })
+                return {
+                    ...appointment.toObject(),
+                    hasPrescription: !!prescription
+                }
+            })
+        )
+
+        res.json({success:true,appointmentsWithPrescription})
 
     } catch(error) {
          console.log(error)
@@ -220,7 +233,16 @@ const paymentRazorpay = async(req,res) => {
 }
 
 const getPrescriptions = async(req,res) => {
-
+    try {
+    const userId = req.userId 
+    const prescriptions = await prescriptionModel.find({userId})
+    if(!prescriptions) {
+        return res.json({success:false,message:'No prescription'})
+    }
+    res.json({success:true,prescriptions})
+}   catch(error) {
+    res.json({success:false,message:error.message})
+}
 }
 
 export {getPrescriptions,registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment}

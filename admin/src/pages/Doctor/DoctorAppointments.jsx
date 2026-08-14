@@ -54,7 +54,13 @@ export const DoctorAppointments = () => {
 
                         {
                           item.isCompleted && (
-                            <button className='bg-primary text-white rounded-full h-9' onClick={()=> navigate(`/doctor-prescription/${item._id}`)}>Create Prescription</button>
+                            <button className='bg-primary text-white rounded-full h-9' onClick={()=> navigate(`/doctor-prescription/${item._id}`)}>
+                              {
+                                item.hasPrescription 
+                                ? 'View Prescription'
+                                : 'Create Prescription'
+                              }
+                              </button>
                           )
                         }
 
