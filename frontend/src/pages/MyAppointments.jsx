@@ -4,11 +4,12 @@ import { useState } from "react"
 import axios from "axios"
 import { toast } from "react-toastify"
 import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 
 const MyAppointments = () => {
+  const navigate = useNavigate()
 
   const {backendUrl, token, getDoctorsData}=useContext(AppContext)
-  const [selectedPrescription, setSelectedPrescription] = useState(null)
   
   const [appointments,setAppointments] = useState([])
   const months=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -24,7 +25,7 @@ const MyAppointments = () => {
       const {data} = await axios.get(backendUrl+ '/api/user/appointments',{headers:{token}})
 
       if(data.success) {
-        setAppointments(data.appointments.reverse())
+        setAppointments(data.appointments)
         console.log(data.appointments)
       }
     } catch(error) {
@@ -33,18 +34,7 @@ const MyAppointments = () => {
     }
   }
 
-  const viewPrescriptions = async(appointmentId) => {
-    try {
-      const {data} = await axios.get(backendUrl+`/api/user/prescription/${appointmentId}`,{headers:{token}})
-      if(data.success) {
-        setSelectedPrescription(data.prescription)
-      } else {
-        toast.error(data.message)
-      }
-    } catch(error) {
-      toast.error(error.message)
-    }
-  }
+  
 
   const cancelAppointment = async(appointmentId)=> {
     try {
@@ -102,7 +92,7 @@ const MyAppointments = () => {
 
         {item.hasPrescription && (
             <button
-                onClick={() => viewPrescriptions(item._id)}
+                onClick={()=>navigate(`/my-prescription/${item._id}`)}
                 className="sm:min-w-48 py-2 border border-primary rounded text-primary hover:bg-primary hover:text-white transition-all duration-500"
             >
                 View Prescription

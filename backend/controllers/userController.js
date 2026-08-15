@@ -186,7 +186,7 @@ const listAppointments = async(req,res)=> {
             })
         )
 
-        res.json({success:true,appointmentsWithPrescription})
+        res.json({success:true,appointments:appointmentsWithPrescription})
 
     } catch(error) {
          console.log(error)
@@ -232,17 +232,57 @@ const paymentRazorpay = async(req,res) => {
 
 }
 
-const getPrescriptions = async(req,res) => {
+
+const getPrescriptions = async (req, res) => {
+
     try {
-    const userId = req.userId 
-    const prescriptions = await prescriptionModel.find({userId})
-    if(!prescriptions) {
-        return res.json({success:false,message:'No prescription'})
+
+        const userId = req.userId
+        const { appointmentId } = req.params
+
+        const appointment = await appointmentModel.findById(appointmentId)
+
+        if (!appointment) {
+            return res.json({
+                success: false,
+                message: 'Appointment not found'
+            })
+        }
+
+        // Make sure this appointment belongs to this patient
+        if (appointment.userId !== userId) {
+            return res.json({
+                success: false,
+                message: 'Unauthorized action'
+            })
+        }
+
+        const prescription = await prescriptionModel.findOne({
+            appointmentId
+        })
+
+        if (!prescription) {
+            return res.json({
+                success: false,
+                message: 'Prescription not found'
+            })
+        }
+
+        res.json({
+            success: true,
+            prescription,
+            appointment
+        })
+
+    } catch(error) {
+
+        console.log(error)
+
+        res.json({
+            success: false,
+            message: error.message
+        })
     }
-    res.json({success:true,prescriptions})
-}   catch(error) {
-    res.json({success:false,message:error.message})
-}
 }
 
 export {getPrescriptions,registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment}
