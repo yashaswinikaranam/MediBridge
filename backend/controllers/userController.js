@@ -7,7 +7,8 @@ import doctorModel from '../models/doctorModel.js'
 import appointmentModel from '../models/appointmentModel.js'
 import razorpay from 'razorpay'
 import prescriptionModel from '../models/prescriptionModel.js'
-
+import notificationModel from '../models/notificationModel.js'
+import transporter from '../config/email.js'
 
 //API to register user
 const registerUser = async(req,res) => {
@@ -156,12 +157,157 @@ delete docDataPlain.slots_booked
         }
 
         const newAppointment = new appointmentModel(appointmentData)
-        await newAppointment.save()
+        const savedAppointment = await newAppointment.save()
 
         //save new slots in docdata
         await doctorModel.findByIdAndUpdate(docId,{slots_booked})
 
-        res.json({success:true,message:"Appointment booked"})
+        // IN-APP NOTIFICATION FOR PATIENT
+// ===============================
+
+await notificationModel.create({
+    recipientId: userId,
+    recipientType: "User",
+    title: "Appointment Confirmed",
+    message: `Your appointment with Dr. ${docData.name} has been booked for ${slotDate} at ${slotTime}.`,
+    type: "appointment",
+    appointmentId: savedAppointment._id
+})
+
+// IN-APP NOTIFICATION FOR DOCTOR
+// ===============================
+
+await notificationModel.create({
+    recipientId: docId,
+    recipientType: "Doctor",
+    title: "New Appointment",
+    message: `${userData.name} has booked an appointment with you for ${slotDate} at ${slotTime}.`,
+    type: "appointment",
+    appointmentId: savedAppointment._id
+})
+
+// EMAIL TO PATIENT
+// ===============================
+
+await transporter.sendMail({
+
+    from: `"MediBridge" <${process.env.EMAIL_USER}>`,
+
+    to: userData.email,
+
+    subject: "MediBridge - Appointment Confirmed",
+
+    html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+
+            <h2 style="color: #5f6fff;">
+                MediBridge
+            </h2>
+
+            <h3>
+                Appointment Confirmed
+            </h3>
+
+            <p>
+                Hello ${userData.name},
+            </p>
+
+            <p>
+                Your appointment has been successfully booked.
+            </p>
+
+            <hr />
+
+            <p>
+                <strong>Doctor:</strong> Dr. ${docData.name}
+            </p>
+
+            <p>
+                <strong>Speciality:</strong> ${docData.speciality}
+            </p>
+
+            <p>
+                <strong>Date:</strong> ${slotDate}
+            </p>
+
+            <p>
+                <strong>Time:</strong> ${slotTime}
+            </p>
+
+            <p>
+                <strong>Appointment Fee:</strong> ₹${docData.fees}
+            </p>
+
+            <hr />
+
+            <p>
+                Thank you for using MediBridge.
+            </p>
+
+        </div>
+    `
+})
+
+// EMAIL TO DOCTOR
+// ===============================
+
+await transporter.sendMail({
+
+    from: `"MediBridge" <${process.env.EMAIL_USER}>`,
+
+    to: docData.email,
+
+    subject: "MediBridge - New Appointment",
+
+    html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+
+            <h2 style="color: #5f6fff;">
+                MediBridge
+            </h2>
+
+            <h3>
+                New Appointment
+            </h3>
+
+            <p>
+                Hello Dr. ${docData.name},
+            </p>
+
+            <p>
+                A new patient has booked an appointment with you.
+            </p>
+
+            <hr />
+
+            <p>
+                <strong>Patient:</strong> ${userData.name}
+            </p>
+
+            <p>
+                <strong>Email:</strong> ${userData.email}
+            </p>
+
+            <p>
+                <strong>Date:</strong> ${slotDate}
+            </p>
+
+            <p>
+                <strong>Time:</strong> ${slotTime}
+            </p>
+
+            <hr />
+
+            <p>
+                Please log in to MediBridge to view the appointment details.
+            </p>
+
+        </div>
+    `
+})
+
+
+        res.json({success:true,message:"Appointment booked and notifications sent"})
     } catch(error) {
         console.log(error)
         res.json({success:false,message:error.message})

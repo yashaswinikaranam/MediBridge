@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import {assets} from '../assets/assets.js'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext.jsx';
+import Notifications from './Notifications.jsx';
 
 const Navbar = () => {
     const navigate=useNavigate();
@@ -38,6 +39,7 @@ const Navbar = () => {
             </NavLink>
         </ul>
         <div className='flex items-center gap-4'>
+            <Notifications />
             {
                 token && userData
                  ?<div className='flex items-center gap-2 cursor-pointer group relative'>

@@ -16,6 +16,7 @@ const AppContextProvider = (props) => {
     const [doctors,setDoctors] = useState([])
     const [token,setToken] = useState(localStorage.getItem('token')?localStorage.getItem('token'):'')
     const [userData,setUserData] = useState(false)
+    const [notifications,setNotifications] = useState([])
    
 
     const getDoctorsData = async()=> {
@@ -31,6 +32,59 @@ const AppContextProvider = (props) => {
             toast.error(error.message)
         }
     }
+
+    const getNotifications = async () => {
+
+    try {
+
+        const { data } = await axios.get(
+            backendUrl + "/api/notifications/user",
+            {
+                headers: { token }
+            }
+        )
+
+        if (data.success) {
+            setNotifications(data.notifications)
+        }
+
+    } catch (error) {
+
+        console.log(error)
+
+    }
+}
+
+const markNotificationRead = async (notificationId) => {
+
+    try {
+
+        const { data } = await axios.post(
+            backendUrl + "/api/notifications/user/read",
+            {
+                notificationId
+            },
+            {
+                headers: { token }
+            }
+        )
+
+        if (data.success) {
+            setNotifications(prev =>
+                prev.map(notification =>
+                    notification._id === notificationId
+                        ? { ...notification, isRead: true }
+                        : notification
+                )
+            )
+        }
+
+    } catch (error) {
+
+        console.log(error)
+
+    }
+}
 
     const loadUserProfileData = async()=> {
         try {
@@ -52,7 +106,10 @@ const AppContextProvider = (props) => {
         token,setToken,
         backendUrl,
         userData,setUserData,
-        loadUserProfileData
+        loadUserProfileData,
+        notifications,
+getNotifications,
+markNotificationRead
     }
 
     useEffect(()=> {
@@ -66,6 +123,12 @@ const AppContextProvider = (props) => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         getDoctorsData()
     },[])
+
+    useEffect(()=> {
+        if(token) {
+            getNotifications()
+        }
+    },[token])
 
     return (
         <AppContext.Provider value={value}>
